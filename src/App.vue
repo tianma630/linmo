@@ -121,7 +121,7 @@ export default defineComponent({
     const isDialog = ref(false);
     const inputValue = ref<string>();
 
-    const isSelect = ref(true);
+    const isSelect = ref(false);
     const selectValue = ref();
     const selectOptions = [
       {
