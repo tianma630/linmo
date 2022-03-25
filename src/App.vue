@@ -182,6 +182,7 @@ export default defineComponent({
       words.value = selectValue.value.split("");
       index.value = 0;
       imgs = Array(words.value.length).fill("");
+      selectValue.value = "";
       onClear();
     }
 
@@ -375,6 +376,10 @@ export default defineComponent({
 </script>
 
 <style lang="less">
+@font-face {
+  font-family: "maobi";
+  src: url("./assets/maobi.ttf");
+}
 body {
   background-color: #f5f5f5;
 }
@@ -451,7 +456,7 @@ body {
     line-height: 355px;
     font-size: 300px;
     color: #e5e5e5;
-    font-family: "楷体", "楷体_GB2313";
+    font-family: "maobi", "楷体", "楷体_GB2313";
     text-align: center;
   }
   canvas {
