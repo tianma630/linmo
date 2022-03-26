@@ -9,12 +9,14 @@
   },
   "dependencies": {
     "core-js": "^3.8.3",
+    "file-saver": "^2.0.5",
     "signature_pad": "^4.0.2",
     "vant": "^3.4.6",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3"
   },
   "devDependencies": {
+    "@types/file-saver": "^2.0.5",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "@vue/cli-plugin-babel": "~5.0.0",
@@ -30,6 +32,7 @@
     "eslint-plugin-vue": "^8.0.3",
     "less": "^4.0.0",
     "less-loader": "^8.0.0",
+    "minimist": "^1.2.6",
     "postcss-px-to-viewport": "^1.1.1",
     "prettier": "^2.4.1",
     "typescript": "~4.5.5",

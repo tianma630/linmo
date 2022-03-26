@@ -1,5 +1,5 @@
 <template>
-  <section class="words" v-if="words.length > 0">
+  <section class="words" v-if="words.length > 0" ref="wordRef">
     <span
       :class="[
         'word',
@@ -46,8 +46,8 @@
   >
     <template v-slot:cover>
       <div class="save">
-        <van-button>保存图片</van-button>
-        <van-button type="primary" style="margin-left: 8px"
+        <van-button @click="saveImgToLocal">保存图片</van-button>
+        <van-button type="primary" style="margin-left: 8px" @click="toShareImg"
           >分享图片</van-button
         >
       </div>
@@ -104,11 +104,13 @@
 import { defineComponent, onMounted, ref } from "vue";
 import SignaturePad from "signature_pad";
 import { Toast } from "vant";
+import * as FileSaver from "file-saver";
 
 export default defineComponent({
   name: "App",
 
   setup() {
+    const wordRef = ref<HTMLElement>();
     const paintRef = ref<HTMLCanvasElement>();
     let signaturePad: SignaturePad;
     const words = ref<Array<string>>("".split(""));
@@ -209,6 +211,8 @@ export default defineComponent({
       });
 
       resizeCanvas();
+
+      window.onresize = () => resizeCanvas();
     });
 
     function onWord(i: number) {
@@ -224,6 +228,9 @@ export default defineComponent({
       if (index.value > 0) {
         index.value--;
         onClear();
+        if (wordRef.value) {
+          wordRef.value.scrollLeft = wordRef.value.scrollLeft - 48;
+        }
       }
     }
 
@@ -232,6 +239,9 @@ export default defineComponent({
       if (index.value < words.value.length - 1) {
         index.value++;
         onClear();
+        if (wordRef.value) {
+          wordRef.value.scrollLeft = wordRef.value.scrollLeft + 48;
+        }
       }
     }
 
@@ -337,7 +347,33 @@ export default defineComponent({
         { 黑色: "#00", 红色: "#f00", 绿色: "#0f0", 蓝色: "#00f" }[c] || "#00";
     }
 
+    function saveImgToLocal() {
+      FileSaver.saveAs(previewImgs.value[0], `linmo-${+new Date()}.png`);
+    }
+
+    function toShareImg() {
+      console.log(11);
+
+      let mateArr = [
+        "og:url",
+        "",
+        "og:title",
+        "我的临摹",
+        "og:image",
+        previewImgs.value[0],
+        "og:type",
+        "website",
+      ];
+      window.open(
+        "http://www.facebook.com/sharer.php?u=" +
+          encodeURIComponent(
+            `http://java.chendahai.cn/share/new?meta=${mateArr.toString()}`
+          )
+      );
+    }
+
     return {
+      wordRef,
       paintRef,
       words,
       index,
@@ -370,6 +406,9 @@ export default defineComponent({
       isColor,
       toSelectColor,
       onConfirmColor,
+
+      saveImgToLocal,
+      toShareImg,
     };
   },
 });
@@ -506,8 +545,10 @@ body {
 }
 
 .save {
+  width: 100%;
+  text-align: center;
   position: fixed;
   bottom: 32px;
-  right: 126px;
+  right: 0;
 }
 </style>

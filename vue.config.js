@@ -1,4 +1,6 @@
 const { defineConfig } = require("@vue/cli-service");
+const argv = require('minimist')(process.argv.slice(2));
+
 module.exports = defineConfig({
   transpileDependencies: true,
 
@@ -6,11 +8,13 @@ module.exports = defineConfig({
 
   filenameHashing: false,
 
+  // outputDir: argv['_'][1] || 'dist',
+
   css: {
     loaderOptions: {
       less: {
         additionalData: `@import '~@/assets/reset.css';`
-      }
+      },
     }
   },
 
