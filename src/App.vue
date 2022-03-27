@@ -356,11 +356,11 @@ export default defineComponent({
 
       let mateArr = [
         "og:url",
-        "",
+        "https://tianma630.com/linmo/dist/index.html",
         "og:title",
-        "我的临摹",
+        "临摹",
         "og:image",
-        previewImgs.value[0],
+        "https://img.zcool.cn/community/01bc7b56000a516ac7251df8ded6a4.JPG@1280w_1l_2o_100sh.jpg",
         "og:type",
         "website",
       ];
