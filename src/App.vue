@@ -19,7 +19,7 @@
     <div class="slash2"></div>
     <div class="slash3"></div>
     <div class="slash4"></div>
-    <div class="text">{{ words[index] }}</div>
+    <div v-if="words[index]" class="text">{{ words[index] }}</div>
     <canvas ref="paintRef"></canvas>
   </section>
 
@@ -210,9 +210,10 @@ export default defineComponent({
         maxWidth: 16,
       });
 
-      resizeCanvas();
-
-      window.onresize = () => resizeCanvas();
+      setTimeout(() => {
+        resizeCanvas();
+        window.onresize = () => resizeCanvas();
+      }, 100);
     });
 
     function onWord(i: number) {
@@ -352,8 +353,6 @@ export default defineComponent({
     }
 
     function toShareImg() {
-      console.log(11);
-
       let mateArr = [
         "og:url",
         "https://tianma630.com/linmo/dist/index.html",
