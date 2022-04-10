@@ -19,7 +19,7 @@
     <div class="slash2"></div>
     <div class="slash3"></div>
     <div class="slash4"></div>
-    <div v-if="words[index]" class="text">{{ words[index] }}</div>
+    <div class="text">{{ words[index] || " " }}</div>
     <canvas ref="paintRef"></canvas>
   </section>
 
