@@ -19,7 +19,14 @@
     <div class="slash2"></div>
     <div class="slash3"></div>
     <div class="slash4"></div>
-    <div class="text">{{ words[index] || " " }}</div>
+    <div
+      class="text"
+      :style="{
+        'font-family': font,
+      }"
+    >
+      {{ words[index] || " " }}
+    </div>
     <canvas ref="paintRef"></canvas>
   </section>
 
@@ -31,11 +38,11 @@
     <div class="btn next" @click="onNext">
       <img src="./assets/arrow.png" alt="" />
     </div>
-    <div class="btn" @click="onCreateImg">生成图片</div>
-    <div class="btn" @click="onInputWord">录入字帖</div>
+    <!-- <div class="btn" @click="onInputWord">录入字帖</div> -->
     <div class="btn" @click="toSelectWord">选择字帖</div>
-    <div class="btn" @click="toSelectWidth">毛笔粗细</div>
+    <div class="btn" @click="toSelectFont">切换字体</div>
     <div class="btn" @click="toSelectColor">毛笔颜色</div>
+    <div class="btn" @click="onCreateImg">生成图片</div>
   </section>
 
   <van-image-preview
@@ -46,7 +53,10 @@
   >
     <template v-slot:cover>
       <div class="save">
-        <van-button @click="saveImgToLocal">保存图片</van-button>
+        <van-button @click="toAddSign">添加签名</van-button>
+        <van-button @click="saveImgToLocal" style="margin-left: 8px"
+          >保存图片</van-button
+        >
         <van-button type="primary" style="margin-left: 8px" @click="toShareImg"
           >分享图片</van-button
         >
@@ -85,9 +95,17 @@
 
   <van-popup v-model:show="isWidth" round position="bottom">
     <van-picker
-      title="选择毛笔粗细"
+      title="选择字体宽度"
       :columns="widthColumns"
       @confirm="onConfirmWidth"
+    />
+  </van-popup>
+
+  <van-popup v-model:show="isFont" round position="bottom">
+    <van-picker
+      title="选择字体"
+      :columns="fontColumns"
+      @confirm="onConfirmFont"
     />
   </van-popup>
 
@@ -98,6 +116,24 @@
       @confirm="onConfirmColor"
     />
   </van-popup>
+
+  <van-dialog
+    v-model:show="isSign"
+    title="添加签名"
+    show-cancel-button
+    @confirm="onAddSign"
+    @cancel="onCancelSign"
+  >
+    <van-cell-group inset>
+      <van-field
+        v-model="signValue"
+        autosize
+        label="签名"
+        type="text"
+        placeholder="请输入您的姓名"
+      />
+    </van-cell-group>
+  </van-dialog>
 </template>
 
 <script lang="ts">
@@ -178,6 +214,9 @@ export default defineComponent({
       },
     ];
 
+    const isSign = ref(false);
+    const signValue = ref<string>();
+
     function onSelect() {
       isSelect.value = false;
 
@@ -186,10 +225,13 @@ export default defineComponent({
       imgs = Array(words.value.length).fill("");
       selectValue.value = "";
       onClear();
+      if (wordRef.value) {
+        wordRef.value.scrollLeft = 0;
+      }
     }
 
     function onCloseSelect() {
-      isSelect.value = true;
+      isSelect.value = false;
     }
 
     function toSelectWord() {
@@ -252,7 +294,16 @@ export default defineComponent({
 
     function onCreateImg() {
       _saveImg();
+      _createImg();
+    }
 
+    function _saveImg() {
+      if (!signaturePad.isEmpty()) {
+        imgs[index.value] = signaturePad.toDataURL();
+      }
+    }
+
+    function _createImg(sign?: string) {
       let count = words.value.length;
 
       const canvas = document.createElement("canvas");
@@ -260,8 +311,22 @@ export default defineComponent({
       canvas.height = 200 * Math.ceil(count / 8);
       const ctx = canvas.getContext("2d");
 
+      if (sign) {
+        canvas.height += 200;
+      }
+
       ctx!.fillStyle = "#fff";
       ctx!.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (sign) {
+        ctx!.font = "100px " + font.value;
+        ctx!.fillStyle = signaturePad.penColor;
+        ctx!.fillText(
+          sign + " 沐手恭书",
+          canvas.width - sign.length * 100 - 480,
+          canvas.height - 80
+        );
+      }
 
       for (let i = 0; i < imgs.length; i++) {
         const base64 = imgs[i];
@@ -294,12 +359,6 @@ export default defineComponent({
       }
     }
 
-    function _saveImg() {
-      if (!signaturePad.isEmpty()) {
-        imgs[index.value] = signaturePad.toDataURL();
-      }
-    }
-
     function onInputWord() {
       isDialog.value = true;
     }
@@ -322,7 +381,7 @@ export default defineComponent({
       inputValue.value = "";
     }
 
-    const widthColumns = [2, 4, 6, 8, 10];
+    const widthColumns = ["楷体", "隶书", "硬笔"];
     const isWidth = ref(false);
 
     function toSelectWidth() {
@@ -335,7 +394,18 @@ export default defineComponent({
       signaturePad.maxWidth = w + 10;
     }
 
-    const colorColumns = ["黑色", "红色", "绿色", "蓝色"];
+    const font = ref<string>("kaiti");
+    const isFont = ref(false);
+    const fontColumns = ["楷体", "隶书", "硬笔"];
+    function toSelectFont() {
+      isFont.value = true;
+    }
+    function onConfirmFont(v: string) {
+      font.value = { 楷体: "kaiti", 隶书: "lishu", 硬笔: "yingbi" }[v] || "";
+      isFont.value = false;
+    }
+
+    const colorColumns = ["黑色", "红色"];
     const isColor = ref(false);
 
     function toSelectColor() {
@@ -344,8 +414,20 @@ export default defineComponent({
 
     function onConfirmColor(c: string) {
       isColor.value = false;
-      signaturePad.penColor =
-        { 黑色: "#00", 红色: "#f00", 绿色: "#0f0", 蓝色: "#00f" }[c] || "#00";
+      signaturePad.penColor = { 黑色: "#00", 红色: "#f00" }[c] || "#00";
+    }
+
+    function toAddSign() {
+      isSign.value = true;
+      signValue.value = "";
+    }
+
+    function onAddSign() {
+      _createImg(signValue.value);
+    }
+
+    function onCancelSign() {
+      isSign.value = false;
     }
 
     function saveImgToLocal() {
@@ -406,8 +488,19 @@ export default defineComponent({
       toSelectColor,
       onConfirmColor,
 
+      isSign,
+      signValue,
+      toAddSign,
+      onAddSign,
+      onCancelSign,
       saveImgToLocal,
       toShareImg,
+
+      font,
+      isFont,
+      fontColumns,
+      toSelectFont,
+      onConfirmFont,
     };
   },
 });
@@ -415,8 +508,16 @@ export default defineComponent({
 
 <style lang="less">
 @font-face {
-  font-family: "maobi";
-  src: url("./assets/maobi.ttf");
+  font-family: "kaiti";
+  src: url("./assets/kaiti.ttf");
+}
+@font-face {
+  font-family: "lishu";
+  src: url("./assets/lishu.ttf");
+}
+@font-face {
+  font-family: "yingbi";
+  src: url("./assets/yingbi.ttf");
 }
 body {
   background-color: #f5f5f5;
@@ -494,7 +595,7 @@ body {
     line-height: 355px;
     font-size: 300px;
     color: #e5e5e5;
-    font-family: "maobi", "楷体", "楷体_GB2313";
+    // font-family: "kaiti";
     text-align: center;
   }
   canvas {

@@ -9,15 +9,6 @@
     />
     <link rel="icon" href="/linmo/dist/favicon.ico" />
     <title>临摹</title>
-    <style>
-      #app {
-        width: 100%;
-        height: 100%;
-        position: relative;
-      }
-    </style>
-    <script defer="defer" src="/linmo/dist/js/chunk-vendors.js"></script>
-    <script defer="defer" src="/linmo/dist/js/app.js"></script>
     <link
       href="/linmo/dist/css/chunk-vendors.css"
       rel="stylesheet alternate"
@@ -42,6 +33,13 @@
       disabled="disabled"
       title="ipad"
     />
+    <style>
+      #app {
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+    </style>
     <script>
       var os = (function () {
         var ua = navigator.userAgent,
@@ -79,8 +77,11 @@
       } else if (os.isTablet) {
         skirColorChange("ipad");
       }
-      console.log(2);
     </script>
+    <script defer="defer" src="/linmo/dist/js/chunk-vendors.js"></script>
+    <script defer="defer" src="/linmo/dist/js/app.js"></script>
+    <link href="/linmo/dist/css/chunk-vendors.css" rel="stylesheet" />
+    <link href="/linmo/dist/css/app.css" rel="stylesheet" />
   </head>
   <body>
     <noscript
