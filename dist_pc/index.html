@@ -1,0 +1,40 @@
+<!doctype html><html lang=""><head><meta charset="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/><link rel="icon" href="/linmo/dist/favicon.ico"/><title>临摹</title><link href="/linmo/dist/css/chunk-vendors.css" rel="stylesheet alternate" disabled="disabled" title="iphone"/><link href="/linmo/dist/css/app.css" rel="stylesheet alternate" disabled="disabled" title="iphone"/><link href="/linmo/dist/css_ipad/chunk-vendors.css" rel="stylesheet alternate" disabled="disabled" title="ipad"/><link href="/linmo/dist/css_ipad/app.css" rel="stylesheet alternate" disabled="disabled" title="ipad"/><style>#app {
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }</style><script>var os = (function () {
+        var ua = navigator.userAgent,
+          isWindowsPhone = /(?:Windows Phone)/.test(ua),
+          isSymbian = /(?:SymbianOS)/.test(ua) || isWindowsPhone,
+          isAndroid = /(?:Android)/.test(ua),
+          isFireFox = /(?:Firefox)/.test(ua),
+          isChrome = /(?:Chrome|CriOS)/.test(ua),
+          isTablet =
+            /(?:iPad|PlayBook)/.test(ua) ||
+            (isAndroid && !/(?:Mobile)/.test(ua)) ||
+            (isFireFox && /(?:Tablet)/.test(ua)),
+          isPhone = /(?:iPhone)/.test(ua) && !isTablet,
+          isPc = !isPhone && !isAndroid && !isSymbian;
+        return {
+          isTablet: isTablet,
+          isPhone: isPhone,
+          isAndroid: isAndroid,
+          isPc: isPc,
+        };
+      })();
+
+      var eleLinks = document.querySelectorAll("link[title]");
+      var skirColorChange = function (value) {
+        eleLinks.forEach(function (link) {
+          link.disabled = true;
+          if (link.getAttribute("title") == value) {
+            link.disabled = false;
+          }
+        });
+      };
+
+      if (os.isAndroid || os.isPhone) {
+        skirColorChange("iphone");
+      } else if (os.isTablet) {
+        skirColorChange("ipad");
+      }</script><script defer="defer" src="/linmo/dist/js/chunk-vendors.js"></script><script defer="defer" src="/linmo/dist/js/app.js"></script><link href="/linmo/dist/css/chunk-vendors.css" rel="stylesheet"><link href="/linmo/dist/css/app.css" rel="stylesheet"></head><body><noscript><strong>We're sorry but 临摹 doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id="app"></div></body></html>

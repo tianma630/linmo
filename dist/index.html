@@ -33,6 +33,18 @@
       disabled="disabled"
       title="ipad"
     />
+    <link
+      href="/linmo/dist/css_pc/chunk-vendors.css"
+      rel="stylesheet alternate"
+      disabled="disabled"
+      title="pc"
+    />
+    <link
+      href="/linmo/dist/css_pc/app.css"
+      rel="stylesheet alternate"
+      disabled="disabled"
+      title="pc"
+    />
     <style>
       #app {
         width: 100%;
@@ -76,12 +88,12 @@
         skirColorChange("iphone");
       } else if (os.isTablet) {
         skirColorChange("ipad");
+      } else {
+        skirColorChange("pc");
       }
     </script>
     <script defer="defer" src="/linmo/dist/js/chunk-vendors.js"></script>
     <script defer="defer" src="/linmo/dist/js/app.js"></script>
-    <link href="/linmo/dist/css/chunk-vendors.css" rel="stylesheet" />
-    <link href="/linmo/dist/css/app.css" rel="stylesheet" />
   </head>
   <body>
     <noscript
