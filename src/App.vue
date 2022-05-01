@@ -263,6 +263,9 @@ export default defineComponent({
         _saveImg();
         onClear();
         index.value = i;
+        if (wordRef.value) {
+          wordRef.value.scrollLeft = Math.max(index.value * 48 - 180, 0);
+        }
       }
     }
 
@@ -272,7 +275,7 @@ export default defineComponent({
         index.value--;
         onClear();
         if (wordRef.value) {
-          wordRef.value.scrollLeft = wordRef.value.scrollLeft - 48;
+          wordRef.value.scrollLeft = Math.max(index.value * 48 - 180, 0);
         }
       }
     }
@@ -283,7 +286,7 @@ export default defineComponent({
         index.value++;
         onClear();
         if (wordRef.value) {
-          wordRef.value.scrollLeft = wordRef.value.scrollLeft + 48;
+          wordRef.value.scrollLeft = Math.max(index.value * 48 - 180, 0);
         }
       }
     }
