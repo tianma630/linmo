@@ -25,7 +25,7 @@
         'font-family': font,
       }"
     >
-      {{ words[index] || " " }}
+      {{ words[index] || "&nbsp;" }}
     </div>
     <canvas ref="paintRef"></canvas>
   </section>
