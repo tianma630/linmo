@@ -4,7 +4,8 @@
       :class="[
         'word',
         {
-          active: i === index,
+          writen: wordState.writens[i],
+          active: i === wordState.index,
         },
       ]"
       v-for="(item, i) in words"
@@ -25,7 +26,7 @@
         'font-family': font,
       }"
     >
-      {{ words[index] || "&nbsp;" }}
+      {{ words[wordState.index] || "&nbsp;" }}
     </div>
     <canvas ref="paintRef"></canvas>
   </section>
@@ -137,7 +138,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
+import { defineComponent, onMounted, reactive, ref } from "vue";
 import SignaturePad from "signature_pad";
 import { Toast } from "vant";
 import * as FileSaver from "file-saver";
@@ -150,7 +151,11 @@ export default defineComponent({
     const paintRef = ref<HTMLCanvasElement>();
     let signaturePad: SignaturePad;
     const words = ref<Array<string>>("".split(""));
-    const index = ref<number>(0);
+    // const index = ref<number>(0);
+    const wordState = reactive({
+      index: 0,
+      writens: Array(words.value.length).fill(false),
+    });
     let imgs = Array(words.value.length).fill("");
 
     const isPreview = ref(false);
@@ -161,10 +166,10 @@ export default defineComponent({
 
     const isSelect = ref(false);
     const selectValue = ref();
-    const selectOptions = [
+    const selectOptions = ref([
       {
         text: "李白",
-        value: "1",
+        value: 1,
         children: [
           {
             text: "早发白帝城",
@@ -194,7 +199,7 @@ export default defineComponent({
       },
       {
         text: "杜甫",
-        value: "2",
+        value: 2,
         children: [
           {
             text: "望岳",
@@ -212,22 +217,34 @@ export default defineComponent({
           },
         ],
       },
-    ];
+    ]);
 
     const isSign = ref(false);
     const signValue = ref<string>();
+
+    fetch("/data.json")
+      .then((res) => res.json())
+      .then((d) => {
+        let i = 0;
+        selectOptions.value = d.map((item: any) => ({
+          ...item,
+          value: ++i,
+        }));
+      });
 
     function onSelect() {
       isSelect.value = false;
 
       words.value = selectValue.value.split("");
-      index.value = 0;
+      wordState.index = 0;
       imgs = Array(words.value.length).fill("");
+      wordState.writens = Array(words.value.length).fill(false);
       selectValue.value = "";
       onClear();
       if (wordRef.value) {
         wordRef.value.scrollLeft = 0;
       }
+      wordState.writens[wordState.index] = true;
     }
 
     function onCloseSelect() {
@@ -259,34 +276,37 @@ export default defineComponent({
     });
 
     function onWord(i: number) {
-      if (i !== index.value) {
+      if (i !== wordState.index) {
         _saveImg();
         onClear();
-        index.value = i;
+        wordState.index = i;
+        wordState.writens[wordState.index] = true;
         if (wordRef.value) {
-          wordRef.value.scrollLeft = Math.max(index.value * 48 - 180, 0);
+          wordRef.value.scrollLeft = Math.max(wordState.index * 48 - 170, 0);
         }
       }
     }
 
     function onLast() {
       _saveImg();
-      if (index.value > 0) {
-        index.value--;
+      if (wordState.index > 0) {
+        wordState.index--;
+        wordState.writens[wordState.index] = true;
         onClear();
         if (wordRef.value) {
-          wordRef.value.scrollLeft = Math.max(index.value * 48 - 180, 0);
+          wordRef.value.scrollLeft = Math.max(wordState.index * 48 - 170, 0);
         }
       }
     }
 
     function onNext() {
       _saveImg();
-      if (index.value < words.value.length - 1) {
-        index.value++;
+      if (wordState.index < words.value.length - 1) {
+        wordState.index++;
+        wordState.writens[wordState.index] = true;
         onClear();
         if (wordRef.value) {
-          wordRef.value.scrollLeft = Math.max(index.value * 48 - 180, 0);
+          wordRef.value.scrollLeft = Math.max(wordState.index * 48 - 170, 0);
         }
       }
     }
@@ -302,7 +322,7 @@ export default defineComponent({
 
     function _saveImg() {
       if (!signaturePad.isEmpty()) {
-        imgs[index.value] = signaturePad.toDataURL();
+        imgs[wordState.index] = signaturePad.toDataURL();
       }
     }
 
@@ -370,7 +390,7 @@ export default defineComponent({
       if (inputValue.value) {
         isDialog.value = false;
         words.value = inputValue.value.split("");
-        index.value = 0;
+        wordState.index = 0;
         imgs = Array(words.value.length).fill("");
         inputValue.value = "";
         onClear();
@@ -460,7 +480,7 @@ export default defineComponent({
       wordRef,
       paintRef,
       words,
-      index,
+      wordState,
       onWord,
       onLast,
       onNext,
@@ -539,7 +559,7 @@ body {
     display: inline-block;
     width: 40px;
     background-color: #fff;
-    color: #aaa;
+    color: #bbb;
     font-size: 28px;
     margin: 2px;
     background-color: #e5e5e5;
@@ -547,9 +567,12 @@ body {
     text-align: center;
     border-radius: 2px;
     transition: all 0.15s linear;
+    &.writen {
+      color: #99cc66;
+    }
     &.active {
       background-color: #fff;
-      color: #fb4e57;
+      color: #ff6666;
     }
   }
 }
