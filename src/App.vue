@@ -232,6 +232,8 @@ export default defineComponent({
         wordRef.value.scrollLeft = 0;
       }
       wordState.writens[wordState.index] = true;
+      isWriting = false;
+      clearTimeout(timer);
     }
 
     function onCloseSelect() {
