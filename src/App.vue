@@ -1,4 +1,11 @@
 <template>
+  <div class="logo">
+    <img
+      src="./assets/logo.png"
+      @click="onThirdJump('http://sutra.nantien.org.au')"
+    />
+  </div>
+
   <section class="words" v-if="words.length > 0" ref="wordRef">
     <span
       :class="[
@@ -46,6 +53,42 @@
     <div class="btn" @click="toAutoJump">自动跳转</div>
     <div class="btn" @click="onCreateImg">生成图片</div>
   </section>
+
+  <div class="footer">
+    <div class="box1">
+      <div class="footer-btn">在线抄经</div>
+      <div
+        class="footer-btn"
+        @click="
+          onThirdJump(
+            'https://hsingyunef.org.au/product-category/books/sutra-copying/'
+          )
+        "
+      >
+        请购抄经本
+      </div>
+      <div
+        class="footer-btn"
+        @click="
+          onThirdJump(
+            'https://www.nantien.org.au/app/application/view/online_donation.php?don_type=sutra%23_#_'
+          )
+        "
+      >
+        随喜捐赠
+      </div>
+    </div>
+    <div class="box2">
+      <span
+        @click="
+          onThirdJump(
+            'https://www.nantien.org.au/en/sites/default/files/Nan-Tien-Temple-Privacy-Policy.pdf'
+          )
+        "
+        >PRIVACY POLICY</span
+      >
+    </div>
+  </div>
 
   <van-image-preview
     v-model:show="isPreview"
@@ -148,6 +191,12 @@
       @cancel="onCancelAutoJump"
     />
   </van-popup>
+
+  <div class="player">
+    <audio autoplay="true" loop="true" id="player">
+      <source src="./assets/bg.mp3" type="audio/mpeg" />
+    </audio>
+  </div>
 </template>
 
 <script lang="ts">
@@ -178,29 +227,7 @@ export default defineComponent({
 
     const isSelect = ref(false);
     const selectValue = ref();
-    const selectOptions = ref([
-      {
-        text: "般若波羅蜜多心經",
-        value: 1,
-        children: [
-          {
-            text: "节一",
-            value:
-              "觀自在菩薩。行深般若波羅蜜多時。照見五蘊皆空。度一切苦厄。舍利子。色不異空。空不異色。色即是空。空即是色。受想行識。亦復如是。舍利子。是諸法空相。不生不滅。不垢不淨。不增不減。是故空中無色。",
-          },
-          {
-            text: "节二",
-            value:
-              "無受想行識。無眼耳鼻舌身意。無色聲香味觸法。無眼界。乃至無意識界。無無明。亦無無明盡。乃至無老死。亦無老死盡。無苦集滅道。無智亦無得。以無所得故。菩提薩埵。依般若波羅蜜多故。心無罣礙。無罣礙故。無有恐怖。",
-          },
-          {
-            text: "节三",
-            value:
-              "遠離顛倒夢想。究竟涅槃。三世諸佛。依般若波羅蜜多故。得阿耨多羅三藐三菩提。故知般若波羅蜜多。是大神咒。是大明咒。是無上咒。是無等等咒。能除一切苦。真實不虛。故說般若波羅蜜多咒。即說咒曰。揭諦揭諦。波羅揭諦。波羅僧揭諦。菩提薩婆訶。",
-          },
-        ],
-      },
-    ]);
+    const selectOptions = ref(window.content_options!);
 
     const isSign = ref(false);
     const signValue = ref<string>();
@@ -208,16 +235,6 @@ export default defineComponent({
     let isWriting = false;
     let period = 0;
     let timer = 0;
-
-    fetch("/data.json")
-      .then((res) => res.json())
-      .then((d) => {
-        let i = 0;
-        selectOptions.value = d.map((item: any) => ({
-          ...item,
-          value: ++i,
-        }));
-      });
 
     function onSelect() {
       isSelect.value = false;
@@ -242,6 +259,8 @@ export default defineComponent({
 
     function toSelectWord() {
       isSelect.value = true;
+
+      (document.querySelector("#player") as any).play();
     }
 
     function resizeCanvas() {
@@ -522,6 +541,10 @@ export default defineComponent({
       isAutoJump.value = false;
     }
 
+    function onThirdJump(url: string) {
+      location.href = url;
+    }
+
     return {
       wordRef,
       paintRef,
@@ -579,6 +602,8 @@ export default defineComponent({
       toAutoJump,
       onCancelAutoJump,
       onAutoJump,
+
+      onThirdJump,
     };
   },
 });
@@ -587,11 +612,11 @@ export default defineComponent({
 <style lang="less">
 @font-face {
   font-family: "kaiti";
-  src: url("./assets/kaiti.ttf");
+  src: url("./assets/kt.ttf");
 }
 @font-face {
   font-family: "lishu";
-  src: url("./assets/lishu.ttf");
+  src: url("./assets/kaiti.ttf");
 }
 @font-face {
   font-family: "yingbi";
@@ -600,13 +625,64 @@ export default defineComponent({
 body {
   background-color: #f5f5f5;
 }
+.logo {
+  width: 100%;
+  text-align: center;
+  margin-top: 4px;
+  img {
+    width: 300px;
+    object-fit: contain;
+  }
+}
+.footer {
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  .box1 {
+    width: 100%;
+    height: 64px;
+    background-color: #4d4d4d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .footer-btn {
+      width: 100px;
+      height: 24px;
+      background: #9e8d69 0% 0% no-repeat padding-box;
+      border: 4px solid #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 5px;
+      color: #ffffff;
+      cursor: pointer;
+    }
+  }
+  .box2 {
+    width: 100%;
+    height: 32px;
+    background-color: #707070;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    span {
+      font: normal normal medium 12px/30px GenYoMin TW TTF;
+      letter-spacing: 1.2px;
+      color: #ffffff;
+      cursor: pointer;
+      display: inline-block;
+      height: 32px;
+      line-height: 32px;
+    }
+  }
+}
 .words {
   width: 355px;
   height: 44px;
   border-radius: 2px;
   background-color: #fff;
   box-sizing: border-box;
-  margin: 20px auto;
+  margin: 12px auto;
   overflow-x: scroll;
   overflow-y: hidden;
   white-space: nowrap;
@@ -638,7 +714,7 @@ body {
   border: 1px solid #fb4e57;
   position: relative;
   box-sizing: border-box;
-  margin-top: 20px;
+  margin-top: 12px;
   .slash1 {
     width: 355px;
     height: 0;
@@ -694,7 +770,7 @@ body {
   box-sizing: border-box;
   border: 1px solid #f1f1f1;
   border-right: 0;
-  margin: 20px auto;
+  margin: 12px auto;
   .btn {
     width: 25%;
     height: 40px;
