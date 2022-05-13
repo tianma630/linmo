@@ -43,6 +43,7 @@
     <div class="btn" @click="toSelectWord">选择字帖</div>
     <div class="btn" @click="toSelectFont">切换字体</div>
     <div class="btn" @click="toSelectColor">毛笔颜色</div>
+    <div class="btn" @click="toAutoJump">自动跳转</div>
     <div class="btn" @click="onCreateImg">生成图片</div>
   </section>
 
@@ -99,6 +100,7 @@
       title="选择字体宽度"
       :columns="widthColumns"
       @confirm="onConfirmWidth"
+      @cancel="onCancelWidth"
     />
   </van-popup>
 
@@ -107,6 +109,7 @@
       title="选择字体"
       :columns="fontColumns"
       @confirm="onConfirmFont"
+      @cancel="onCancelFont"
     />
   </van-popup>
 
@@ -115,6 +118,7 @@
       title="选择毛笔颜色"
       :columns="colorColumns"
       @confirm="onConfirmColor"
+      @cancel="onCancelColor"
     />
   </van-popup>
 
@@ -135,6 +139,15 @@
       />
     </van-cell-group>
   </van-dialog>
+
+  <van-popup v-model:show="isAutoJump" round position="bottom">
+    <van-picker
+      title="自动跳转下一字"
+      :columns="jumpColumns"
+      @confirm="onAutoJump"
+      @cancel="onCancelAutoJump"
+    />
+  </van-popup>
 </template>
 
 <script lang="ts">
@@ -151,7 +164,6 @@ export default defineComponent({
     const paintRef = ref<HTMLCanvasElement>();
     let signaturePad: SignaturePad;
     const words = ref<Array<string>>("".split(""));
-    // const index = ref<number>(0);
     const wordState = reactive({
       index: 0,
       writens: Array(words.value.length).fill(false),
@@ -222,6 +234,10 @@ export default defineComponent({
     const isSign = ref(false);
     const signValue = ref<string>();
 
+    let isWriting = false;
+    let period = 0;
+    let timer = 0;
+
     fetch("/data.json")
       .then((res) => res.json())
       .then((d) => {
@@ -269,14 +285,41 @@ export default defineComponent({
         maxWidth: 16,
       });
 
+      paintRef.value!.addEventListener("pointerdown", () => {
+        autorun();
+      });
+
       setTimeout(() => {
         resizeCanvas();
         window.onresize = () => resizeCanvas();
       }, 100);
     });
 
+    function autorun() {
+      if (
+        !isWriting &&
+        period > 0 &&
+        wordState.index < words.value.length - 1
+      ) {
+        isWriting = true;
+        timer = setTimeout(() => {
+          isWriting = false;
+          _saveImg();
+
+          wordState.index++;
+          wordState.writens[wordState.index] = true;
+          onClear();
+          if (wordRef.value) {
+            wordRef.value.scrollLeft = Math.max(wordState.index * 48 - 170, 0);
+          }
+        }, period * 1000);
+      }
+    }
+
     function onWord(i: number) {
       if (i !== wordState.index) {
+        clearTimeout(timer);
+        isWriting = false;
         _saveImg();
         onClear();
         wordState.index = i;
@@ -290,6 +333,8 @@ export default defineComponent({
     function onLast() {
       _saveImg();
       if (wordState.index > 0) {
+        clearTimeout(timer);
+        isWriting = false;
         wordState.index--;
         wordState.writens[wordState.index] = true;
         onClear();
@@ -300,8 +345,11 @@ export default defineComponent({
     }
 
     function onNext() {
+      clearTimeout(timer);
       _saveImg();
       if (wordState.index < words.value.length - 1) {
+        clearTimeout(timer);
+        isWriting = false;
         wordState.index++;
         wordState.writens[wordState.index] = true;
         onClear();
@@ -411,6 +459,10 @@ export default defineComponent({
       isWidth.value = true;
     }
 
+    function onCancelWidth() {
+      isWidth.value = false;
+    }
+
     function onConfirmWidth(w: number) {
       isWidth.value = false;
       signaturePad.minWidth = w;
@@ -423,6 +475,9 @@ export default defineComponent({
     function toSelectFont() {
       isFont.value = true;
     }
+    function onCancelFont() {
+      isFont.value = false;
+    }
     function onConfirmFont(v: string) {
       font.value = { 楷体: "kaiti", 隶书: "lishu", 硬笔: "yingbi" }[v] || "";
       isFont.value = false;
@@ -433,6 +488,10 @@ export default defineComponent({
 
     function toSelectColor() {
       isColor.value = true;
+    }
+
+    function onCancelColor() {
+      isColor.value = false;
     }
 
     function onConfirmColor(c: string) {
@@ -476,6 +535,20 @@ export default defineComponent({
       );
     }
 
+    const isAutoJump = ref(false);
+    const jumpColumns = ["手动", "1秒", "2秒", "3秒", "4秒", "5秒"];
+    function toAutoJump() {
+      isAutoJump.value = true;
+    }
+    function onCancelAutoJump() {
+      isAutoJump.value = false;
+    }
+    function onAutoJump(v: string) {
+      period =
+        { 手动: 0, "1秒": 1, "2秒": 2, "3秒": 3, "4秒": 4, "5秒": 5 }[v] || 0;
+      isAutoJump.value = false;
+    }
+
     return {
       wordRef,
       paintRef,
@@ -504,11 +577,13 @@ export default defineComponent({
       widthColumns,
       isWidth,
       toSelectWidth,
+      onCancelWidth,
       onConfirmWidth,
 
       colorColumns,
       isColor,
       toSelectColor,
+      onCancelColor,
       onConfirmColor,
 
       isSign,
@@ -523,7 +598,14 @@ export default defineComponent({
       isFont,
       fontColumns,
       toSelectFont,
+      onCancelFont,
       onConfirmFont,
+
+      isAutoJump,
+      jumpColumns,
+      toAutoJump,
+      onCancelAutoJump,
+      onAutoJump,
     };
   },
 });
