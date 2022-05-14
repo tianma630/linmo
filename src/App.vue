@@ -54,6 +54,8 @@
     <div class="btn" @click="onCreateImg">生成图片</div>
   </section>
 
+  <div class="footer-block"></div>
+
   <div class="footer">
     <div class="box1">
       <div class="footer-btn">在线抄经</div>
@@ -634,9 +636,13 @@ body {
     object-fit: contain;
   }
 }
+.footer-block {
+  width: 100%;
+  height: 96px;
+}
 .footer {
   width: 100%;
-  position: absolute;
+  position: fixed;
   bottom: 0;
   .box1 {
     width: 100%;
